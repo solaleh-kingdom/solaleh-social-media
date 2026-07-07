@@ -1,5 +1,3 @@
-import './styles.css';
-
 const personas = [
   {
     id: 'solaleh',
