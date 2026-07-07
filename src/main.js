@@ -19,6 +19,112 @@ const users = {
 
 const assistantModes = ['Chat', 'Trend lookup', 'Rewrite', 'Planning'];
 
+const stoneNamesGoogleTrends = [
+  'Agate',
+  'Amazonite',
+  'Amethyst',
+  'Ametrine',
+  'Andalusite',
+  'Angelite',
+  'Apache Tear',
+  'Apatite',
+  'Aquamarine',
+  'Aquamarine Morganite',
+  'Aquaprase',
+  'Arfvedsonite',
+  'Arusha',
+  'Azurite',
+  'Azurite Chrysocolla',
+  'Azurite Malachite',
+  'Biotite',
+  'Bloodstone',
+  'Bronzite',
+  'Calcite',
+  'Calligraphy',
+  'Carnelian',
+  'Celestite',
+  'Chakra',
+  'Chalcedony',
+  'Charoite',
+  'Chrysocolla',
+  'Chrysoprase',
+  'Citrine',
+  'Clear Quartz',
+  'Coral',
+  'Diopside',
+  'Dumortierite',
+  'Emerald',
+  'Fluorite',
+  'Fuchsite',
+  'Garnet',
+  "Hawk's Eye",
+  'Hematite',
+  'Hematoid',
+  'Hemimorphite',
+  'Howlite',
+  'Hypersthene',
+  'Iolite',
+  'Jade',
+  'Jasper',
+  'Jet',
+  'Kunzite',
+  'Kyanite',
+  'Labradorite',
+  'Lapis Lazuli',
+  'Larimar',
+  'Larvikite',
+  'Lava',
+  'Lepidolite',
+  'Lianite',
+  'Lodalite / Chlorite',
+  'Malachite',
+  'Mookaite',
+  'Moonstone',
+  'Morganite',
+  'Mother of Pearl',
+  'Obsidian',
+  'Onyx',
+  'Opal',
+  'Peridot',
+  'Petrified Wood',
+  'Phantom',
+  'Phosphosiderite',
+  'Pietersite',
+  'Prehnite',
+  'Pyrite',
+  'Quartz',
+  'Rhodochrosite',
+  'Rhodonite',
+  'River Rock',
+  'Rose Quartz',
+  'Ruby',
+  'Ruby Sapphire',
+  'Ruby Zoisite',
+  'Sacred Seven',
+  'Sandstone',
+  'Sapphire',
+  'Seraphinite',
+  'Serpentine',
+  'Shattuckite',
+  'Shungite',
+  'Smoky Quartz',
+  'Sodalite',
+  'Spinel',
+  'Sugilite',
+  'Sunstone',
+  'Sunstone Moonstone',
+  'Tanzanite',
+  'Terahertz',
+  'Thulite',
+  'Tiffany',
+  "Tiger's Eye",
+  'Topaz',
+  'Tourmaline',
+  'Turquoise',
+  'Unakite',
+  'Variscite',
+];
+
 const root = document.getElementById('root');
 
 function getRoute() {
@@ -226,6 +332,20 @@ function renderUserPage(user) {
           </div>
 
           <div class="section-block">
+            <span class="panel-label">Gemstone trends</span>
+            <p class="persona-copy">
+              Click the button below to search your full gemstone list against Google Trends for the past week and return the top 3.
+            </p>
+            <div class="action-row">
+              <button class="ghost-btn" id="find-gemstone-trends">Find trending gemstones</button>
+            </div>
+            <div class="assistant-preview">
+              <span class="field-label">Gemstone trend results</span>
+              <ul class="trend-list" id="gemstone-results"></ul>
+            </div>
+          </div>
+
+          <div class="section-block">
             <span class="panel-label">Saved history for ${user.name}</span>
             <ul class="trend-list" id="history"></ul>
           </div>
@@ -239,6 +359,7 @@ function renderUserPage(user) {
   const keywordEl = document.getElementById('keywords');
   const replyEl = document.getElementById('reply');
   const trendsEl = document.getElementById('trends');
+  const gemstoneResultsEl = document.getElementById('gemstone-results');
   const historyEl = document.getElementById('history');
 
   function renderAiReply() {
@@ -260,6 +381,25 @@ function renderUserPage(user) {
     historyEl.innerHTML = user.history.map((item) => `<li>${item}</li>`).join('');
   }
 
+  async function findGemstoneTrends() {
+    gemstoneResultsEl.innerHTML = '<li>Searching Google Trends...</li>';
+    try {
+      const response = await fetch(`/api/trends?keywords=${encodeURIComponent(stoneNamesGoogleTrends.join(','))}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        gemstoneResultsEl.innerHTML = `<li>${data.error ?? 'Trend lookup failed.'}</li>`;
+        return;
+      }
+
+      gemstoneResultsEl.innerHTML = data.results
+        .map((item, index) => `<li>${index + 1}. ${item.keyword}</li>`)
+        .join('');
+    } catch (error) {
+      gemstoneResultsEl.innerHTML = `<li>${error instanceof Error ? error.message : 'Trend lookup failed.'}</li>`;
+    }
+  }
+
   document.getElementById('back-home').addEventListener('click', () => go('/'));
   document.getElementById('fill-prompt').addEventListener('click', () => {
     promptEl.value =
@@ -277,6 +417,7 @@ function renderUserPage(user) {
   });
   document.getElementById('send-prompt').addEventListener('click', renderAiReply);
   document.getElementById('search-trends').addEventListener('click', renderTrendPreview);
+  document.getElementById('find-gemstone-trends').addEventListener('click', findGemstoneTrends);
 
   modeEl.addEventListener('change', renderAiReply);
   promptEl.addEventListener('input', renderAiReply);
@@ -285,6 +426,7 @@ function renderUserPage(user) {
   renderAiReply();
   renderTrendPreview();
   renderHistory();
+  gemstoneResultsEl.innerHTML = '<li>Click “Find trending gemstones” to search the full list.</li>';
 }
 
 function render() {
