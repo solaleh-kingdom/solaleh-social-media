@@ -211,6 +211,13 @@ select { appearance: none; }
   gap: 16px;
 }
 
+.home-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
 .section-block {
   display: grid;
   gap: 10px;
@@ -218,6 +225,10 @@ select { appearance: none; }
   border-radius: 22px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.single-workspace {
+  grid-template-columns: 1fr;
 }
 
 .persona-head {

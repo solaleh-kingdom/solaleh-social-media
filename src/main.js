@@ -1,230 +1,304 @@
-const users = [
-  {
+const users = {
+  solaleh: {
     id: 'solaleh',
     name: 'Solaleh',
     accent: 'accent-cyan',
     starterPrompt: 'Ask AI to help me with content, captions, and trend ideas.',
     starterKeywords: 'gemstone trends, ai creator tools, luxury content',
+    history: ['Drafted gemstone trend ideas', 'Saved an AI caption rewrite', 'Looked up last week’s search terms'],
   },
-  {
+  farahnaz: {
     id: 'farahnaz',
     name: 'Farahnaz',
     accent: 'accent-pink',
     starterPrompt: 'Ask AI to organize my notes, rewrite ideas, and plan posts.',
     starterKeywords: 'gemstone trends, productivity, behind the scenes',
+    history: ['Organized weekly tasks', 'Rewrote a post for clarity', 'Saved trend lookup results'],
   },
-];
+};
 
 const assistantModes = ['Chat', 'Trend lookup', 'Rewrite', 'Planning'];
 
 const root = document.getElementById('root');
-root.innerHTML = `
-  <div class="page-shell">
-    <div class="backdrop backdrop-left"></div>
-    <div class="backdrop backdrop-right"></div>
 
-    <header class="topbar">
-      <div>
-        <span class="eyebrow">Private AI workspace</span>
-        <h1>Solaleh + Farahnaz, each with a dedicated AI section.</h1>
-        <p class="lead">
-          The first feature we are building is AI chat plus Google Trends lookup for the last 7 days.
-          Each user gets their own visible area inside the page.
-        </p>
-      </div>
-      <div class="topbar-actions">
-        <span class="url-chip">Live on Netlify</span>
-        <span class="url-chip">GitHub connected</span>
-      </div>
-    </header>
+function getRoute() {
+  return window.location.pathname.replace(/\/+$/, '') || '/';
+}
 
-    <section class="hero-card">
-      <div>
-        <div class="stat-grid">
-          <div class="stat-card">
-            <strong>2</strong>
-            <span>visible user sections</span>
-          </div>
-          <div class="stat-card">
-            <strong>AI</strong>
-            <span>chat-ready workspace</span>
-          </div>
-          <div class="stat-card">
-            <strong>7d</strong>
-            <span>Google Trends window</span>
+function go(path) {
+  history.pushState({}, '', path);
+  render();
+}
+
+function renderHome() {
+  root.innerHTML = `
+    <div class="page-shell">
+      <div class="backdrop backdrop-left"></div>
+      <div class="backdrop backdrop-right"></div>
+
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">Private AI workspace</span>
+          <h1>Solaleh + Farahnaz, each with a dedicated AI section.</h1>
+          <p class="lead">
+            Click a name to open a personal page. Each user gets their own space for chat, trends, and history.
+          </p>
+        </div>
+        <div class="topbar-actions">
+          <span class="url-chip">Live on Netlify</span>
+          <span class="url-chip">GitHub connected</span>
+        </div>
+      </header>
+
+      <section class="hero-card">
+        <div>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <strong>2</strong>
+              <span>visible user sections</span>
+            </div>
+            <div class="stat-card">
+              <strong>AI</strong>
+              <span>chat-ready workspace</span>
+            </div>
+            <div class="stat-card">
+              <strong>7d</strong>
+              <span>Google Trends window</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="hero-panel">
-        <span class="panel-badge">How this will work</span>
-        <ol>
-          <li>Each user writes a prompt or keywords.</li>
-          <li>The AI section answers or summarizes the request.</li>
-          <li>The trends section returns the top 3 searched results for the last week.</li>
-        </ol>
-      </div>
-    </section>
+        <div class="hero-panel">
+          <span class="panel-badge">How this will work</span>
+          <ol>
+            <li>Each user writes a prompt or keywords.</li>
+            <li>The AI section answers or summarizes the request.</li>
+            <li>The trends section returns the top 3 searched results for the last week.</li>
+          </ol>
+        </div>
+      </section>
 
-    <section class="assistant-bar panel">
-      <div>
-        <span class="panel-label">Shared AI mode</span>
-        <h2>Choose what the assistant should do</h2>
-      </div>
-      <div class="assistant-controls">
-        <label>
-          <span class="field-label">Mode</span>
-          <select id="assistant-mode">
-            ${assistantModes.map((mode) => `<option value="${mode}">${mode}</option>`).join('')}
-          </select>
-        </label>
-        <label>
-          <span class="field-label">API status</span>
-          <input value="OpenAI connection will be added next" readonly />
-        </label>
-      </div>
-    </section>
+      <section class="assistant-bar panel">
+        <div>
+          <span class="panel-label">Shared AI mode</span>
+          <h2>Choose what the assistant should do</h2>
+        </div>
+        <div class="assistant-controls">
+          <label>
+            <span class="field-label">Mode</span>
+            <select id="assistant-mode">
+              ${assistantModes.map((mode) => `<option value="${mode}">${mode}</option>`).join('')}
+            </select>
+          </label>
+          <label>
+            <span class="field-label">Open the personal pages</span>
+            <input value="Click Solaleh or Farahnaz below" readonly />
+          </label>
+        </div>
+      </section>
 
-    <main class="workspace">
-      ${users
-        .map(
-          (user) => `
-            <section class="persona-card ${user.accent}" data-user="${user.id}">
-              <header class="persona-head">
-                <div>
-                  <span class="persona-kicker">${user.name}</span>
-                  <h2>${user.name}'s dedicated workspace</h2>
+      <main class="workspace">
+        ${Object.values(users)
+          .map(
+            (user) => `
+              <button class="persona-card ${user.accent} home-card" data-open="${user.id}">
+                <header class="persona-head">
+                  <div>
+                    <span class="persona-kicker">${user.name}</span>
+                    <h2>${user.name}'s dedicated workspace</h2>
+                  </div>
+                  <span class="status-pill">Open page</span>
+                </header>
+                <div class="section-block">
+                  <p class="persona-copy">Click to open ${user.name}'s personal page with their own AI chat, trends, and saved history.</p>
                 </div>
-                <span class="status-pill">Visible</span>
-              </header>
+              </button>
+            `
+          )
+          .join('')}
+      </main>
+    </div>
+  `;
 
-              <div class="section-block">
-                <span class="panel-label">AI chat for ${user.name}</span>
-                <textarea id="${user.id}-prompt" class="persona-note">${user.starterPrompt}</textarea>
-                <div class="action-row">
-                  <button class="secondary-btn" data-fill-prompt="${user.id}">Load example</button>
-                  <button class="ghost-btn" data-send-prompt="${user.id}">Send to AI</button>
-                </div>
-                <div class="assistant-preview">
-                  <span class="field-label">AI reply preview</span>
-                  <p id="${user.id}-reply"></p>
-                </div>
-              </div>
-
-              <div class="section-block">
-                <span class="panel-label">Google Trends for ${user.name}</span>
-                <label class="field-label" for="${user.id}-keywords">Keywords for Google Trends</label>
-                <textarea id="${user.id}-keywords" class="persona-note">${user.starterKeywords}</textarea>
-                <div class="action-row">
-                  <button class="secondary-btn" data-fill-keywords="${user.id}">Load example keywords</button>
-                  <button class="ghost-btn" data-search-trends="${user.id}">Search trends</button>
-                </div>
-                <div class="assistant-preview">
-                  <span class="field-label">Top 3 results from the last week</span>
-                  <ul class="trend-list" id="${user.id}-trends"></ul>
-                </div>
-              </div>
-
-              <div class="section-block">
-                <span class="panel-label">Saved history for ${user.name}</span>
-                <ul class="trend-list" id="${user.id}-history"></ul>
-              </div>
-            </section>
-          `
-        )
-        .join('')}
-    </main>
-  </div>
-`;
-
-const assistantModeEl = document.getElementById('assistant-mode');
-const promptEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-prompt`)]));
-const keywordEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-keywords`)]));
-const replyEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-reply`)]));
-const trendEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-trends`)]));
-const historyEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-history`)]));
-
-const historyItems = {
-  solaleh: [
-    'Drafted gemstone trend ideas',
-    'Saved an AI caption rewrite',
-    'Looked up last week’s search terms',
-  ],
-  farahnaz: [
-    'Organized weekly tasks',
-    'Rewrote a post for clarity',
-    'Saved trend lookup results',
-  ],
-};
-
-function renderAiReply(userId) {
-  const mode = assistantModeEl.value;
-  const prompt = promptEls[userId].value.trim() || 'No prompt yet';
-  replyEls[userId].textContent = `Mode: ${mode}. I can help turn this into a useful AI response: "${prompt}"`;
+  document.querySelectorAll('[data-open]').forEach((button) => {
+    button.addEventListener('click', () => go(`/${button.getAttribute('data-open')}`));
+  });
 }
 
-function renderTrendPreview(userId) {
-  const text = keywordEls[userId].value.trim();
-  const items = text
-    ? text.split('\n').map((line) => line.trim()).filter(Boolean)
-    : ['Trend lookup will appear here', 'Connect the Google Trends function next', 'Top 3 results'];
+function renderUserPage(user) {
+  root.innerHTML = `
+    <div class="page-shell">
+      <div class="backdrop backdrop-left"></div>
+      <div class="backdrop backdrop-right"></div>
 
-  const top3 = items.slice(0, 3);
-  trendEls[userId].innerHTML = top3.map((item) => `<li>${item}</li>`).join('');
-}
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">${user.name.toUpperCase()}</span>
+          <h1>${user.name}'s personal AI page</h1>
+          <p class="lead">This page is dedicated to ${user.name} only. It includes private AI chat, Google Trends lookup, and personal history.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-btn" id="back-home">Back to home</button>
+          <span class="url-chip">Personal workspace</span>
+        </div>
+      </header>
 
-function renderHistory(userId) {
-  historyEls[userId].innerHTML = historyItems[userId].map((item) => `<li>${item}</li>`).join('');
-}
+      <section class="hero-card">
+        <div>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <strong>Chat</strong>
+              <span>Ask the AI anything</span>
+            </div>
+            <div class="stat-card">
+              <strong>Trends</strong>
+              <span>Top 3 Google Trends</span>
+            </div>
+            <div class="stat-card">
+              <strong>History</strong>
+              <span>Saved notes and activity</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <span class="panel-badge">Personal use</span>
+          <ol>
+            <li>Open your own page from the home screen.</li>
+            <li>Use the AI chat area for your personal prompts.</li>
+            <li>Look up trend keywords from the last 7 days.</li>
+          </ol>
+        </div>
+      </section>
 
-function refreshUser(userId) {
-  renderAiReply(userId);
-  renderTrendPreview(userId);
-  renderHistory(userId);
-}
+      <section class="assistant-bar panel">
+        <div>
+          <span class="panel-label">AI mode</span>
+          <h2>${user.name}'s assistant settings</h2>
+        </div>
+        <div class="assistant-controls">
+          <label>
+            <span class="field-label">Mode</span>
+            <select id="assistant-mode">
+              ${assistantModes.map((mode) => `<option value="${mode}">${mode}</option>`).join('')}
+            </select>
+          </label>
+          <label>
+            <span class="field-label">Connection</span>
+            <input value="Ready for OpenAI API connection" readonly />
+          </label>
+        </div>
+      </section>
 
-assistantModeEl.addEventListener('change', () => {
-  users.forEach((user) => refreshUser(user.id));
-});
+      <main class="workspace single-workspace">
+        <section class="persona-card ${user.accent}">
+          <header class="persona-head">
+            <div>
+              <span class="persona-kicker">${user.name}</span>
+              <h2>${user.name}'s AI chat</h2>
+            </div>
+            <span class="status-pill">Visible</span>
+          </header>
 
-users.forEach((user) => {
-  promptEls[user.id].addEventListener('input', () => renderAiReply(user.id));
-  keywordEls[user.id].addEventListener('input', () => renderTrendPreview(user.id));
-});
+          <div class="section-block">
+            <span class="panel-label">AI chat for ${user.name}</span>
+            <textarea id="prompt" class="persona-note">${user.starterPrompt}</textarea>
+            <div class="action-row">
+              <button class="secondary-btn" id="fill-prompt">Load example</button>
+              <button class="ghost-btn" id="send-prompt">Send to AI</button>
+            </div>
+            <div class="assistant-preview">
+              <span class="field-label">AI reply preview</span>
+              <p id="reply"></p>
+            </div>
+          </div>
 
-document.querySelectorAll('[data-fill-prompt]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const userId = button.getAttribute('data-fill-prompt');
-    promptEls[userId].value =
-      userId === 'solaleh'
+          <div class="section-block">
+            <span class="panel-label">Google Trends for ${user.name}</span>
+            <label class="field-label" for="keywords">Keywords for Google Trends</label>
+            <textarea id="keywords" class="persona-note">${user.starterKeywords}</textarea>
+            <div class="action-row">
+              <button class="secondary-btn" id="fill-keywords">Load example keywords</button>
+              <button class="ghost-btn" id="search-trends">Search trends</button>
+            </div>
+            <div class="assistant-preview">
+              <span class="field-label">Top 3 results from the last week</span>
+              <ul class="trend-list" id="trends"></ul>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <span class="panel-label">Saved history for ${user.name}</span>
+            <ul class="trend-list" id="history"></ul>
+          </div>
+        </section>
+      </main>
+    </div>
+  `;
+
+  const modeEl = document.getElementById('assistant-mode');
+  const promptEl = document.getElementById('prompt');
+  const keywordEl = document.getElementById('keywords');
+  const replyEl = document.getElementById('reply');
+  const trendsEl = document.getElementById('trends');
+  const historyEl = document.getElementById('history');
+
+  function renderAiReply() {
+    replyEl.textContent = `Mode: ${modeEl.value}. I can help turn this into a useful AI response: "${promptEl.value.trim() || 'No prompt yet'}"`;
+  }
+
+  function renderTrendPreview() {
+    const items = keywordEl.value
+      .trim()
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const top3 = (items.length ? items : ['Trend lookup will appear here', 'Connect the Google Trends function next', 'Top 3 results']).slice(0, 3);
+    trendsEl.innerHTML = top3.map((item) => `<li>${item}</li>`).join('');
+  }
+
+  function renderHistory() {
+    historyEl.innerHTML = user.history.map((item) => `<li>${item}</li>`).join('');
+  }
+
+  document.getElementById('back-home').addEventListener('click', () => go('/'));
+  document.getElementById('fill-prompt').addEventListener('click', () => {
+    promptEl.value =
+      user.id === 'solaleh'
         ? 'Help me draft content ideas for gemstone trends and luxury style.'
         : 'Rewrite my notes into a clear plan for the week.';
-    renderAiReply(userId);
+    renderAiReply();
   });
-});
-
-document.querySelectorAll('[data-fill-keywords]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const userId = button.getAttribute('data-fill-keywords');
-    keywordEls[userId].value =
-      userId === 'solaleh'
+  document.getElementById('fill-keywords').addEventListener('click', () => {
+    keywordEl.value =
+      user.id === 'solaleh'
         ? 'gemstone trends\nluxury jewelry trends\nAI creator tools'
         : 'gemstone trends\nproductivity trends\naudience growth';
-    renderTrendPreview(userId);
+    renderTrendPreview();
   });
-});
+  document.getElementById('send-prompt').addEventListener('click', renderAiReply);
+  document.getElementById('search-trends').addEventListener('click', renderTrendPreview);
 
-document.querySelectorAll('[data-send-prompt]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const userId = button.getAttribute('data-send-prompt');
-    renderAiReply(userId);
-  });
-});
+  modeEl.addEventListener('change', renderAiReply);
+  promptEl.addEventListener('input', renderAiReply);
+  keywordEl.addEventListener('input', renderTrendPreview);
 
-document.querySelectorAll('[data-search-trends]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const userId = button.getAttribute('data-search-trends');
-    renderTrendPreview(userId);
-  });
-});
+  renderAiReply();
+  renderTrendPreview();
+  renderHistory();
+}
 
-users.forEach((user) => refreshUser(user.id));
+function render() {
+  const route = getRoute();
+  if (route === '/solaleh') {
+    renderUserPage(users.solaleh);
+    return;
+  }
+  if (route === '/farahnaz') {
+    renderUserPage(users.farahnaz);
+    return;
+  }
+  renderHome();
+}
+
+window.addEventListener('popstate', render);
+render();
