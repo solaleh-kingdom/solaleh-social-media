@@ -1,248 +1,186 @@
 import './styles.css';
 
-const toneOptions = ['Confident', 'Playful', 'Educational', 'Luxury'];
-const formatOptions = ['30s Short', '45s Short', '60s Short'];
-
-const starterTrends = `1. AI tools for solo creators
-2. Behind-the-scenes content
-3. Quick productivity wins
-4. Storytime clips`;
-
-const ideaLibrary = [
+const personas = [
   {
-    keyword: 'ai',
-    hook: 'Everyone is talking about AI, but here is the version creators actually need.',
-    angle: 'Show how you turn noisy trend chatter into a simple weekly content system.',
-    cta: 'If you want the template, comment "AI".',
+    id: 'solaleh',
+    name: 'Solaleh',
+    colorClass: 'persona-a',
+    prompt: 'Ask the AI to draft posts, summarize ideas, or plan content for Solaleh.',
+    chips: ['Content ideas', 'Post drafts', 'Weekly plan'],
+    starter: 'Today I want to plan my content for the week and draft one strong post.',
   },
   {
-    keyword: 'behind',
-    hook: 'The best-performing shorts are not perfect, they are believable.',
-    angle: 'Use a behind-the-scenes angle to make the trend feel personal and repeatable.',
-    cta: 'Save this if you want more BTS ideas.',
-  },
-  {
-    keyword: 'productivity',
-    hook: 'This is the fastest way to make your content system feel lighter this week.',
-    angle: 'Frame the trend as a small workflow win instead of a massive overhaul.',
-    cta: 'Follow for the weekly breakdown.',
-  },
-  {
-    keyword: 'story',
-    hook: 'Storytime shorts work when the opening line creates instant curiosity.',
-    angle: 'Use a short story to connect the trend to your own experience.',
-    cta: 'Want part two? I can build it next.',
+    id: 'farahnaz',
+    name: 'Farahnaz',
+    colorClass: 'persona-b',
+    prompt: 'Ask the AI to brainstorm, rewrite, or organize work for Farahnaz.',
+    chips: ['Brainstorming', 'Rewrite help', 'Task list'],
+    starter: 'Help me turn my thoughts into clear tasks and one useful post idea.',
   },
 ];
 
-function normalizeLines(text) {
-  return text
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => line.replace(/^\d+[\).\s-]*/, ''));
-}
+const assistantModes = ['General help', 'Content writing', 'Planning', 'Rewrite'];
 
-function buildScripts(trends, tone, format) {
-  const items = normalizeLines(trends);
-  const cleanItems = items.length ? items : ['Trend one', 'Trend two', 'Trend three'];
+const examples = {
+  solaleh: [
+    'Create 5 content ideas about AI for creators.',
+    'Write a short caption that sounds confident and warm.',
+    'Turn this rough note into a clean post.',
+  ],
+  farahnaz: [
+    'Organize my ideas into a simple to-do list.',
+    'Rewrite this message so it sounds polished.',
+    'Give me 3 angles for a post about productivity.',
+  ],
+};
 
-  return cleanItems.map((trend, index) => {
-    const matchedIdea =
-      ideaLibrary.find((idea) => trend.toLowerCase().includes(idea.keyword)) ?? ideaLibrary[index % ideaLibrary.length];
+function createPersonaCard(persona) {
+  return `
+    <section class="persona-card ${persona.colorClass}" data-persona="${persona.id}">
+      <header class="persona-head">
+        <div>
+          <span class="persona-kicker">${persona.name}</span>
+          <h2>${persona.name}'s space</h2>
+        </div>
+        <span class="status-pill">AI ready</span>
+      </header>
 
-    const duration =
-      format === '30s Short' ? '20-30 seconds' : format === '45s Short' ? '35-45 seconds' : '50-60 seconds';
+      <p class="persona-copy">${persona.prompt}</p>
 
-    return {
-      trend,
-      title: `Script ${index + 1}`,
-      duration,
-      hook: matchedIdea.hook,
-      body: `${matchedIdea.angle} Build the short around "${trend}" and keep the pacing ${tone.toLowerCase()} and tight.`,
-      cta: matchedIdea.cta,
-    };
-  });
+      <div class="chip-row">
+        ${persona.chips.map((chip) => `<span class="chip">${chip}</span>`).join('')}
+      </div>
+
+      <label class="field-label" for="${persona.id}-note">Quick note</label>
+      <textarea id="${persona.id}-note" class="persona-note">${persona.starter}</textarea>
+
+      <div class="action-row">
+        <button class="secondary-btn" data-fill="${persona.id}">Load example</button>
+        <button class="ghost-btn" data-copy="${persona.id}">Copy note</button>
+      </div>
+
+      <div class="assistant-preview">
+        <span class="field-label">Suggested AI prompt</span>
+        <p id="${persona.id}-suggestion"></p>
+      </div>
+    </section>
+  `;
 }
 
 const root = document.getElementById('root');
 root.innerHTML = `
   <div class="page-shell">
-    <div class="backdrop"></div>
+    <div class="backdrop backdrop-left"></div>
+    <div class="backdrop backdrop-right"></div>
+
     <header class="topbar">
       <div>
-        <span class="eyebrow">Browser-based content studio</span>
-        <h1>Turn weekly trends into short-form scripts from any device.</h1>
+        <span class="eyebrow">Private AI workspace</span>
+        <h1>One place for Solaleh, Farahnaz, and AI help anytime.</h1>
+        <p class="lead">
+          This site is being shaped as a shared space where each person has their own section,
+          with an assistant area ready for OpenAI-powered help later.
+        </p>
       </div>
       <div class="topbar-actions">
-        <button class="ghost-btn" id="save-week">Save week</button>
-        <span class="url-chip">Accessible in your browser</span>
+        <span class="url-chip">Connected to GitHub + Netlify</span>
+        <span class="url-chip">Edit once, publish everywhere</span>
       </div>
     </header>
 
     <main class="layout">
       <section class="hero-card">
         <div class="hero-copy">
-          <p class="lead">
-            Paste the trends you want to work on this week, pick a tone, and get a batch of short-ready scripts
-            you can record, tweak, and post from your phone, tablet, or laptop.
-          </p>
-          <div class="hero-stats">
-            <div>
-              <strong id="script-count">0</strong>
-              <span>scripts ready</span>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <strong>2</strong>
+              <span>separate user spaces</span>
             </div>
-            <div>
-              <strong id="length-label">45s Short</strong>
-              <span>target length</span>
+            <div class="stat-card">
+              <strong>AI</strong>
+              <span>assistant-ready design</span>
             </div>
-            <div>
-              <strong id="tone-label">Confident</strong>
-              <span>voice</span>
+            <div class="stat-card">
+              <strong>Live</strong>
+              <span>Netlify deploys from GitHub</span>
             </div>
           </div>
         </div>
         <div class="hero-panel">
-          <div class="panel-badge">Website workflow</div>
-          <p>1. Drop in the trends.</p>
-          <p>2. Choose the vibe.</p>
-          <p>3. Copy the scripts into your recording process.</p>
+          <span class="panel-badge">How it will work</span>
+          <ol>
+            <li>Each person gets their own section.</li>
+            <li>Each section has a prompt box and AI suggestions.</li>
+            <li>Later we connect the OpenAI API so the site can answer directly.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="assistant-bar panel">
+        <div>
+          <span class="panel-label">Shared assistant</span>
+          <h2>One AI for both users</h2>
+        </div>
+        <div class="assistant-controls">
+          <label>
+            <span class="field-label">Mode</span>
+            <select id="assistant-mode">
+              ${assistantModes.map((mode) => `<option value="${mode}">${mode}</option>`).join('')}
+            </select>
+          </label>
+          <label>
+            <span class="field-label">Model note</span>
+            <input id="model-note" value="Ready for OpenAI API connection" readonly />
+          </label>
         </div>
       </section>
 
       <section class="workspace">
-        <article class="panel editor">
-          <div class="panel-head">
-            <div>
-              <span class="panel-label">Input</span>
-              <h2>Your weekly trend brief</h2>
-            </div>
-            <button class="secondary-btn" id="load-example">Load example</button>
-          </div>
-
-          <label class="field-label" for="trends">Trends</label>
-          <textarea id="trends" placeholder="Paste the trends, topics, or hooks you want to work on this week."></textarea>
-
-          <div class="controls">
-            <label>
-              <span class="field-label">Tone</span>
-              <select id="tone-select">
-                ${toneOptions.map((option) => `<option value="${option}">${option}</option>`).join('')}
-              </select>
-            </label>
-            <label>
-              <span class="field-label">Short length</span>
-              <select id="format-select">
-                ${formatOptions.map((option) => `<option value="${option}">${option}</option>`).join('')}
-              </select>
-            </label>
-          </div>
-        </article>
-
-        <article class="panel scripts">
-          <div class="panel-head">
-            <div>
-              <span class="panel-label">Output</span>
-              <h2>Generated short scripts</h2>
-            </div>
-            <span class="count-pill" id="draft-count">0 drafts</span>
-          </div>
-
-          <div class="script-list" id="script-list"></div>
-        </article>
-      </section>
-
-      <section class="bottom-grid">
-        <article class="panel mini">
-          <span class="panel-label">Website features</span>
-          <h2>What this site does</h2>
-          <ul>
-            <li>Collects the trends you are working on each week.</li>
-            <li>Turns them into repeatable short-form structures.</li>
-            <li>Keeps your planning inside one shareable website.</li>
-          </ul>
-        </article>
-
-        <article class="panel mini">
-          <span class="panel-label">Saved briefs</span>
-          <h2>Recent weeks</h2>
-          <div class="saved-list" id="saved-list"></div>
-        </article>
+        ${personas.map(createPersonaCard).join('')}
       </section>
     </main>
   </div>
 `;
 
-const trendsEl = document.getElementById('trends');
-const toneEl = document.getElementById('tone-select');
-const formatEl = document.getElementById('format-select');
-const scriptListEl = document.getElementById('script-list');
-const savedListEl = document.getElementById('saved-list');
-const scriptCountEl = document.getElementById('script-count');
-const draftCountEl = document.getElementById('draft-count');
-const toneLabelEl = document.getElementById('tone-label');
-const lengthLabelEl = document.getElementById('length-label');
-const loadExampleEl = document.getElementById('load-example');
-const saveWeekEl = document.getElementById('save-week');
+const assistantModeEl = document.getElementById('assistant-mode');
+const suggestionEls = Object.fromEntries(personas.map((persona) => [persona.id, document.getElementById(`${persona.id}-suggestion`)]));
+const noteEls = Object.fromEntries(personas.map((persona) => [persona.id, document.getElementById(`${persona.id}-note`)]));
 
-let savedBriefs = [
-  'Week of July 7: creator AI workflows, quick hooks, and BTS content',
-  'Week of July 14: audience growth, niche authority, and offer teasers',
-];
-
-function renderSavedBriefs() {
-  savedListEl.innerHTML = savedBriefs.map((brief) => `<div class="saved-item">${brief}</div>`).join('');
+function buildSuggestion(name, note, mode) {
+  const cleaned = note.trim() || 'No note yet';
+  return `Mode: ${mode}. Turn this into a useful next step for ${name}: "${cleaned}"`;
 }
 
-function renderScripts() {
-  const scripts = buildScripts(trendsEl.value, toneEl.value, formatEl.value);
-  scriptListEl.innerHTML = scripts
-    .map(
-      (script) => `
-        <section class="script-card">
-          <div class="script-meta">
-            <strong>${script.title}</strong>
-            <span>${script.duration}</span>
-          </div>
-          <p class="trend-tag">${script.trend}</p>
-          <div class="script-line">
-            <span>Hook</span>
-            <p>${script.hook}</p>
-          </div>
-          <div class="script-line">
-            <span>Body</span>
-            <p>${script.body}</p>
-          </div>
-          <div class="script-line">
-            <span>CTA</span>
-            <p>${script.cta}</p>
-          </div>
-        </section>
-      `
-    )
-    .join('');
-
-  scriptCountEl.textContent = `${scripts.length}`;
-  draftCountEl.textContent = `${scripts.length} drafts`;
-  toneLabelEl.textContent = toneEl.value;
-  lengthLabelEl.textContent = formatEl.value;
+function renderSuggestions() {
+  const mode = assistantModeEl.value;
+  personas.forEach((persona) => {
+    suggestionEls[persona.id].textContent = buildSuggestion(persona.name, noteEls[persona.id].value, mode);
+  });
 }
 
-trendsEl.value = starterTrends;
-renderSavedBriefs();
-renderScripts();
+assistantModeEl.addEventListener('change', renderSuggestions);
 
-trendsEl.addEventListener('input', renderScripts);
-toneEl.addEventListener('change', renderScripts);
-formatEl.addEventListener('change', renderScripts);
-
-loadExampleEl.addEventListener('click', () => {
-  trendsEl.value = starterTrends;
-  renderScripts();
+personas.forEach((persona) => {
+  noteEls[persona.id].addEventListener('input', renderSuggestions);
 });
 
-saveWeekEl.addEventListener('click', () => {
-  const summary = normalizeLines(trendsEl.value).join(' · ') || 'Empty brief';
-  savedBriefs = [summary, ...savedBriefs].slice(0, 4);
-  renderSavedBriefs();
+document.querySelectorAll('[data-fill]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const personaId = button.getAttribute('data-fill');
+    noteEls[personaId].value = examples[personaId][0];
+    renderSuggestions();
+  });
 });
+
+document.querySelectorAll('[data-copy]').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const personaId = button.getAttribute('data-copy');
+    await navigator.clipboard.writeText(noteEls[personaId].value);
+    button.textContent = 'Copied';
+    setTimeout(() => {
+      button.textContent = 'Copy note';
+    }, 1200);
+  });
+});
+
+renderSuggestions();
