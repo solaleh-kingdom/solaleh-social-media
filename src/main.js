@@ -1,69 +1,21 @@
-const personas = [
+const users = [
   {
     id: 'solaleh',
     name: 'Solaleh',
-    colorClass: 'persona-a',
-    prompt: 'Ask the AI to draft posts, summarize ideas, or plan content for Solaleh.',
-    chips: ['Content ideas', 'Post drafts', 'Weekly plan'],
-    starter: 'Today I want to plan my content for the week and draft one strong post.',
+    accent: 'accent-cyan',
+    starterPrompt: 'Ask AI to help me with content, captions, and trend ideas.',
+    starterKeywords: 'gemstone trends, ai creator tools, luxury content',
   },
   {
     id: 'farahnaz',
     name: 'Farahnaz',
-    colorClass: 'persona-b',
-    prompt: 'Ask the AI to brainstorm, rewrite, or organize work for Farahnaz.',
-    chips: ['Brainstorming', 'Rewrite help', 'Task list'],
-    starter: 'Help me turn my thoughts into clear tasks and one useful post idea.',
+    accent: 'accent-pink',
+    starterPrompt: 'Ask AI to organize my notes, rewrite ideas, and plan posts.',
+    starterKeywords: 'gemstone trends, productivity, behind the scenes',
   },
 ];
 
-const assistantModes = ['General help', 'Content writing', 'Planning', 'Rewrite'];
-
-const examples = {
-  solaleh: [
-    'Create 5 content ideas about AI for creators.',
-    'Write a short caption that sounds confident and warm.',
-    'Turn this rough note into a clean post.',
-  ],
-  farahnaz: [
-    'Organize my ideas into a simple to-do list.',
-    'Rewrite this message so it sounds polished.',
-    'Give me 3 angles for a post about productivity.',
-  ],
-};
-
-function createPersonaCard(persona) {
-  return `
-    <section class="persona-card ${persona.colorClass}" data-persona="${persona.id}">
-      <header class="persona-head">
-        <div>
-          <span class="persona-kicker">${persona.name}</span>
-          <h2>${persona.name}'s space</h2>
-        </div>
-        <span class="status-pill">AI ready</span>
-      </header>
-
-      <p class="persona-copy">${persona.prompt}</p>
-
-      <div class="chip-row">
-        ${persona.chips.map((chip) => `<span class="chip">${chip}</span>`).join('')}
-      </div>
-
-      <label class="field-label" for="${persona.id}-note">Quick note</label>
-      <textarea id="${persona.id}-note" class="persona-note">${persona.starter}</textarea>
-
-      <div class="action-row">
-        <button class="secondary-btn" data-fill="${persona.id}">Load example</button>
-        <button class="ghost-btn" data-copy="${persona.id}">Copy note</button>
-      </div>
-
-      <div class="assistant-preview">
-        <span class="field-label">Suggested AI prompt</span>
-        <p id="${persona.id}-suggestion"></p>
-      </div>
-    </section>
-  `;
-}
+const assistantModes = ['Chat', 'Trend lookup', 'Rewrite', 'Planning'];
 
 const root = document.getElementById('root');
 root.innerHTML = `
@@ -74,111 +26,205 @@ root.innerHTML = `
     <header class="topbar">
       <div>
         <span class="eyebrow">Private AI workspace</span>
-        <h1>One place for Solaleh, Farahnaz, and AI help anytime.</h1>
+        <h1>Solaleh + Farahnaz, each with a dedicated AI section.</h1>
         <p class="lead">
-          This site is being shaped as a shared space where each person has their own section,
-          with an assistant area ready for OpenAI-powered help later.
+          The first feature we are building is AI chat plus Google Trends lookup for the last 7 days.
+          Each user gets their own visible area inside the page.
         </p>
       </div>
       <div class="topbar-actions">
-        <span class="url-chip">Connected to GitHub + Netlify</span>
-        <span class="url-chip">Edit once, publish everywhere</span>
+        <span class="url-chip">Live on Netlify</span>
+        <span class="url-chip">GitHub connected</span>
       </div>
     </header>
 
-    <main class="layout">
-      <section class="hero-card">
-        <div class="hero-copy">
-          <div class="stat-grid">
-            <div class="stat-card">
-              <strong>2</strong>
-              <span>separate user spaces</span>
-            </div>
-            <div class="stat-card">
-              <strong>AI</strong>
-              <span>assistant-ready design</span>
-            </div>
-            <div class="stat-card">
-              <strong>Live</strong>
-              <span>Netlify deploys from GitHub</span>
-            </div>
+    <section class="hero-card">
+      <div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <strong>2</strong>
+            <span>visible user sections</span>
+          </div>
+          <div class="stat-card">
+            <strong>AI</strong>
+            <span>chat-ready workspace</span>
+          </div>
+          <div class="stat-card">
+            <strong>7d</strong>
+            <span>Google Trends window</span>
           </div>
         </div>
-        <div class="hero-panel">
-          <span class="panel-badge">How it will work</span>
-          <ol>
-            <li>Each person gets their own section.</li>
-            <li>Each section has a prompt box and AI suggestions.</li>
-            <li>Later we connect the OpenAI API so the site can answer directly.</li>
-          </ol>
-        </div>
-      </section>
+      </div>
+      <div class="hero-panel">
+        <span class="panel-badge">How this will work</span>
+        <ol>
+          <li>Each user writes a prompt or keywords.</li>
+          <li>The AI section answers or summarizes the request.</li>
+          <li>The trends section returns the top 3 searched results for the last week.</li>
+        </ol>
+      </div>
+    </section>
 
-      <section class="assistant-bar panel">
-        <div>
-          <span class="panel-label">Shared assistant</span>
-          <h2>One AI for both users</h2>
-        </div>
-        <div class="assistant-controls">
-          <label>
-            <span class="field-label">Mode</span>
-            <select id="assistant-mode">
-              ${assistantModes.map((mode) => `<option value="${mode}">${mode}</option>`).join('')}
-            </select>
-          </label>
-          <label>
-            <span class="field-label">Model note</span>
-            <input id="model-note" value="Ready for OpenAI API connection" readonly />
-          </label>
-        </div>
-      </section>
+    <section class="assistant-bar panel">
+      <div>
+        <span class="panel-label">Shared AI mode</span>
+        <h2>Choose what the assistant should do</h2>
+      </div>
+      <div class="assistant-controls">
+        <label>
+          <span class="field-label">Mode</span>
+          <select id="assistant-mode">
+            ${assistantModes.map((mode) => `<option value="${mode}">${mode}</option>`).join('')}
+          </select>
+        </label>
+        <label>
+          <span class="field-label">API status</span>
+          <input value="OpenAI connection will be added next" readonly />
+        </label>
+      </div>
+    </section>
 
-      <section class="workspace">
-        ${personas.map(createPersonaCard).join('')}
-      </section>
+    <main class="workspace">
+      ${users
+        .map(
+          (user) => `
+            <section class="persona-card ${user.accent}" data-user="${user.id}">
+              <header class="persona-head">
+                <div>
+                  <span class="persona-kicker">${user.name}</span>
+                  <h2>${user.name}'s dedicated workspace</h2>
+                </div>
+                <span class="status-pill">Visible</span>
+              </header>
+
+              <div class="section-block">
+                <span class="panel-label">AI chat for ${user.name}</span>
+                <textarea id="${user.id}-prompt" class="persona-note">${user.starterPrompt}</textarea>
+                <div class="action-row">
+                  <button class="secondary-btn" data-fill-prompt="${user.id}">Load example</button>
+                  <button class="ghost-btn" data-send-prompt="${user.id}">Send to AI</button>
+                </div>
+                <div class="assistant-preview">
+                  <span class="field-label">AI reply preview</span>
+                  <p id="${user.id}-reply"></p>
+                </div>
+              </div>
+
+              <div class="section-block">
+                <span class="panel-label">Google Trends for ${user.name}</span>
+                <label class="field-label" for="${user.id}-keywords">Keywords for Google Trends</label>
+                <textarea id="${user.id}-keywords" class="persona-note">${user.starterKeywords}</textarea>
+                <div class="action-row">
+                  <button class="secondary-btn" data-fill-keywords="${user.id}">Load example keywords</button>
+                  <button class="ghost-btn" data-search-trends="${user.id}">Search trends</button>
+                </div>
+                <div class="assistant-preview">
+                  <span class="field-label">Top 3 results from the last week</span>
+                  <ul class="trend-list" id="${user.id}-trends"></ul>
+                </div>
+              </div>
+
+              <div class="section-block">
+                <span class="panel-label">Saved history for ${user.name}</span>
+                <ul class="trend-list" id="${user.id}-history"></ul>
+              </div>
+            </section>
+          `
+        )
+        .join('')}
     </main>
   </div>
 `;
 
 const assistantModeEl = document.getElementById('assistant-mode');
-const suggestionEls = Object.fromEntries(personas.map((persona) => [persona.id, document.getElementById(`${persona.id}-suggestion`)]));
-const noteEls = Object.fromEntries(personas.map((persona) => [persona.id, document.getElementById(`${persona.id}-note`)]));
+const promptEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-prompt`)]));
+const keywordEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-keywords`)]));
+const replyEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-reply`)]));
+const trendEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-trends`)]));
+const historyEls = Object.fromEntries(users.map((user) => [user.id, document.getElementById(`${user.id}-history`)]));
 
-function buildSuggestion(name, note, mode) {
-  const cleaned = note.trim() || 'No note yet';
-  return `Mode: ${mode}. Turn this into a useful next step for ${name}: "${cleaned}"`;
-}
+const historyItems = {
+  solaleh: [
+    'Drafted gemstone trend ideas',
+    'Saved an AI caption rewrite',
+    'Looked up last week’s search terms',
+  ],
+  farahnaz: [
+    'Organized weekly tasks',
+    'Rewrote a post for clarity',
+    'Saved trend lookup results',
+  ],
+};
 
-function renderSuggestions() {
+function renderAiReply(userId) {
   const mode = assistantModeEl.value;
-  personas.forEach((persona) => {
-    suggestionEls[persona.id].textContent = buildSuggestion(persona.name, noteEls[persona.id].value, mode);
-  });
+  const prompt = promptEls[userId].value.trim() || 'No prompt yet';
+  replyEls[userId].textContent = `Mode: ${mode}. I can help turn this into a useful AI response: "${prompt}"`;
 }
 
-assistantModeEl.addEventListener('change', renderSuggestions);
+function renderTrendPreview(userId) {
+  const text = keywordEls[userId].value.trim();
+  const items = text
+    ? text.split('\n').map((line) => line.trim()).filter(Boolean)
+    : ['Trend lookup will appear here', 'Connect the Google Trends function next', 'Top 3 results'];
 
-personas.forEach((persona) => {
-  noteEls[persona.id].addEventListener('input', renderSuggestions);
+  const top3 = items.slice(0, 3);
+  trendEls[userId].innerHTML = top3.map((item) => `<li>${item}</li>`).join('');
+}
+
+function renderHistory(userId) {
+  historyEls[userId].innerHTML = historyItems[userId].map((item) => `<li>${item}</li>`).join('');
+}
+
+function refreshUser(userId) {
+  renderAiReply(userId);
+  renderTrendPreview(userId);
+  renderHistory(userId);
+}
+
+assistantModeEl.addEventListener('change', () => {
+  users.forEach((user) => refreshUser(user.id));
 });
 
-document.querySelectorAll('[data-fill]').forEach((button) => {
+users.forEach((user) => {
+  promptEls[user.id].addEventListener('input', () => renderAiReply(user.id));
+  keywordEls[user.id].addEventListener('input', () => renderTrendPreview(user.id));
+});
+
+document.querySelectorAll('[data-fill-prompt]').forEach((button) => {
   button.addEventListener('click', () => {
-    const personaId = button.getAttribute('data-fill');
-    noteEls[personaId].value = examples[personaId][0];
-    renderSuggestions();
+    const userId = button.getAttribute('data-fill-prompt');
+    promptEls[userId].value =
+      userId === 'solaleh'
+        ? 'Help me draft content ideas for gemstone trends and luxury style.'
+        : 'Rewrite my notes into a clear plan for the week.';
+    renderAiReply(userId);
   });
 });
 
-document.querySelectorAll('[data-copy]').forEach((button) => {
-  button.addEventListener('click', async () => {
-    const personaId = button.getAttribute('data-copy');
-    await navigator.clipboard.writeText(noteEls[personaId].value);
-    button.textContent = 'Copied';
-    setTimeout(() => {
-      button.textContent = 'Copy note';
-    }, 1200);
+document.querySelectorAll('[data-fill-keywords]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const userId = button.getAttribute('data-fill-keywords');
+    keywordEls[userId].value =
+      userId === 'solaleh'
+        ? 'gemstone trends\nluxury jewelry trends\nAI creator tools'
+        : 'gemstone trends\nproductivity trends\naudience growth';
+    renderTrendPreview(userId);
   });
 });
 
-renderSuggestions();
+document.querySelectorAll('[data-send-prompt]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const userId = button.getAttribute('data-send-prompt');
+    renderAiReply(userId);
+  });
+});
+
+document.querySelectorAll('[data-search-trends]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const userId = button.getAttribute('data-search-trends');
+    renderTrendPreview(userId);
+  });
+});
+
+users.forEach((user) => refreshUser(user.id));

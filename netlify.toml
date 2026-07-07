@@ -5,3 +5,8 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/api/trends"
+  to = "/.netlify/functions/trends"
+  status = 200

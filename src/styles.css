@@ -207,6 +207,17 @@ select { appearance: none; }
 .persona-card {
   border-radius: 28px;
   padding: 22px;
+  display: grid;
+  gap: 16px;
+}
+
+.section-block {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .persona-head {
@@ -258,15 +269,28 @@ select { appearance: none; }
 .persona-b { box-shadow: inset 0 1px 0 rgba(249, 168, 212, 0.08); }
 
 .assistant-preview {
-  margin-top: 18px;
   padding: 16px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
 }
 
+.trend-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.trend-list li + li {
+  margin-top: 6px;
+}
+
+.accent-cyan { box-shadow: inset 0 1px 0 rgba(94, 234, 212, 0.08); }
+.accent-pink { box-shadow: inset 0 1px 0 rgba(249, 168, 212, 0.08); }
+
 @media (max-width: 980px) {
-  .topbar, .hero-card, .assistant-bar, .workspace, .assistant-controls, .stat-grid { grid-template-columns: 1fr; }
+  .hero-card, .assistant-bar, .workspace, .assistant-controls, .stat-grid { grid-template-columns: 1fr; }
   .topbar, .assistant-bar { align-items: start; flex-direction: column; }
   .topbar-actions { justify-content: flex-start; }
   .page-shell { padding: 18px; }
